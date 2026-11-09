@@ -1,0 +1,27 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+description: entries for the sample sheet
+properties:
+  sample:
+    type: string
+    description: sample name/identifier
+    is_unique: true
+  description:
+    type: string
+    description: metadata or other information about sample
+  accession:
+    type: string
+    description: SRA accession
+    is_unique: true
+  read1:
+    type: string
+    description: path to fastq.gz files, read 1
+    is_unique: true
+  read2:
+    type: string
+    description: path to fastq.gz files, read 2 (optional)
+    is_unique: true
+required:
+  - sample
+anyOf:
+  - required: [read1]
+  - required: [accession]

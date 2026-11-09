@@ -1,0 +1,22 @@
+from snakemake.utils import min_version
+
+min_version("6.10.0")
+
+
+configfile: "config/config.yml"
+
+
+# declare https://github.com/ZandvakiliLab/snakemake-prep-reads as a module
+module snakemake_prep_reads:
+    snakefile:
+        github(
+            "ZandvakiliLab/snakemake-prep-reads",
+            path="workflow/Snakefile",
+            branch="main",
+        )
+    config:
+        config
+
+
+# use all rules from https://github.com/ZandvakiliLab/snakemake-prep-reads
+use rule * from snakemake_prep_reads
