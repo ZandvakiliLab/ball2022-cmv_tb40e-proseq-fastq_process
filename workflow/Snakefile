@@ -12,7 +12,7 @@ module snakemake_prep_reads:
         github(
             "ZandvakiliLab/snakemake-prep-reads",
             path="workflow/Snakefile",
-            branch="main",
+            commit="2266ac2f666c6616498cbbfbf4b5b13db0275334",
         )
     config:
         config
