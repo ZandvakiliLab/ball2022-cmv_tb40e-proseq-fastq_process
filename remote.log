@@ -1,0 +1,1 @@
+d850ba54-fb60-4c74-9d44-a081b1b1bcce autoenable=true bucket=ball2022-cmv_tb40e-proseq datacenter=US encryption=none host=js2.jetstream-cloud.org name=ball2022-cmv_tb40e-proseq port=8001 protocol=https requeststyle=path storageclass=STANDARD type=S3 timestamp=1794327365s
