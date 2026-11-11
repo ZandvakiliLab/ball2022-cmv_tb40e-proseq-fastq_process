@@ -1,0 +1,77 @@
+name: Run Snakemake workflow
+
+on:
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: read
+
+env:
+  # Credentials for the S3 special remote "jetstream2" (git-annex)
+  AWS_ACCESS_KEY_ID: ${{ secrets.JETSTREAM2_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.JETSTREAM2_SECRET_ACCESS_KEY }}
+
+jobs:
+  run-workflow:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - name: Set up conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          channels: conda-forge,bioconda
+          channel-priority: strict
+          activate-environment: datalad
+
+      - name: Install Datalad, git-annex and Snakemake
+        run: |
+          conda install -y datalad git-annex "snakemake>=9"
+
+      - name: Update apt package index
+        run: sudo apt-get update
+
+      - name: Set up Apptainer
+        uses: eWaterCycle/setup-apptainer@v2
+
+      - name: Configure git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone dataset
+        run: |
+          datalad clone \
+            "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
+            dataset
+          cd dataset
+          git annex enableremote jetstream2
+
+      - name: Get all data from git-annex remote
+        working-directory: dataset
+        run: datalad get --jobs 4 .
+
+      - name: Download FASTQ
+        working-directory: dataset
+        run: |
+          datalad run \
+            -m "Download FASTQ Files" \
+            "snakemake --until get_fastq --profile github_actions"
+
+      - name: Remove 5' UMIs
+        working-directory: dataset
+        run: |
+          datalad run \
+            -m "Remove 5' UMIs" \
+            "snakemake --until umi_tools_extract --profile github_actions"
+
+      - name: Trim Adapters and Low-Quality Bases
+        working-directory: dataset
+        run: |
+          datalad run \
+            -m "Trim Adapters and Low-Quality Bases" \
+            "snakemake --until cutadapt --profile github_actions"

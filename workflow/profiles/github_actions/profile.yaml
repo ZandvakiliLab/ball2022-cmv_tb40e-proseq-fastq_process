@@ -1,0 +1,4 @@
+cores: 4
+software-deployment-method:
+  - conda
+  - apptainer
