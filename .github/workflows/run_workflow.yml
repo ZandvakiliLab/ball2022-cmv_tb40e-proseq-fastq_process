@@ -15,7 +15,7 @@ env:
 
 jobs:
   run-workflow:
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, jetstream2, snakemake]
     defaults:
       run:
         shell: bash -el {0}
@@ -49,6 +49,7 @@ jobs:
             "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
             dataset
           cd dataset
+          git checkout "${{ github.sha }}"
           git annex enableremote jetstream2
 
       - name: Get all data from git-annex remote
@@ -60,18 +61,18 @@ jobs:
         run: |
           datalad run \
             -m "Download FASTQ Files" \
-            "snakemake --until get_fastq --profile github_actions"
+            "snakemake --until get_fastq --workflow-profile github_actions"
 
       - name: Remove 5' UMIs
         working-directory: dataset
         run: |
           datalad run \
             -m "Remove 5' UMIs" \
-            "snakemake --until umi_tools_extract --profile github_actions"
+            "snakemake --until umi_tools_extract --workflow-profile github_actions"
 
       - name: Trim Adapters and Low-Quality Bases
         working-directory: dataset
         run: |
           datalad run \
             -m "Trim Adapters and Low-Quality Bases" \
-            "snakemake --until cutadapt --profile github_actions"
+            "snakemake --until cutadapt --workflow-profile github_actions"
