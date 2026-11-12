@@ -19,4 +19,4 @@ module snakemake_prep_reads:
 
 
 # use all rules from https://github.com/ZandvakiliLab/snakemake-prep-reads
-use rule * from snakemake_prep_reads
+use rule * from snakemake_prep_reads as prepreads_*
